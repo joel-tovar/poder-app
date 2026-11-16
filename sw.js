@@ -1,5 +1,5 @@
 /* PODER · service worker: funciona sin internet (cáscara en caché) y recibe los avisos de entregas. */
-const V = 'poder-v4';
+const V = 'poder-v5';
 const CASCARA = ['./', 'index.html', 'puente.js', 'app.css', 'src/tablero.css', 'src/tablero.js', 'src/escena.js', 'src/escena-doble.js',
   'img/personaje.webp', 'img/icono-192.png', 'manifest.webmanifest', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'];
 

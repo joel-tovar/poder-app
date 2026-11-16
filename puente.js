@@ -171,8 +171,12 @@
   }
   function activarAvisos(boton) {
     if (esIOS && !instalada) { aviso('Primero instálala: Compartir → «Agregar a inicio». Luego abre PODER desde el ícono.'); return; }
-    if (!('Notification' in window) || !reg || !reg.pushManager) { aviso('Este navegador no permite notificaciones.'); return; }
+    if (!('Notification' in window)) { aviso('Este navegador no permite notificaciones.'); return; }
     campana(); // desbloquea el audio con el toque
+    // Si el motor (service worker) aún no está listo, lo esperamos antes de seguir.
+    var listo = reg && reg.pushManager ? Promise.resolve(reg) : (navigator.serviceWorker ? navigator.serviceWorker.ready : Promise.reject());
+    listo.then(function (r) { reg = r || reg; }, function () {}).then(function () {
+    if (!reg || !reg.pushManager) { aviso('No se pudo preparar las notificaciones. Cierra PODER y ábrela de nuevo.'); return; }
     Notification.requestPermission().then(function (p) {
       if (p !== 'granted') { aviso('Sin permiso de notificaciones. Actívalo en Ajustes → Notificaciones → PODER.'); return; }
       return fetch(API + '/api/vapid').then(function (r) { return r.json(); }).then(function (v) {
@@ -186,20 +190,20 @@
         return api('/api/push/prueba', { method: 'POST' });
       }).then(function () { aviso('Listo: te aviso cada entrega de Dropi.'); });
     }).catch(function (e) { aviso('No se pudo activar: ' + (e && e.message || e)); });
+    });
   }
   function pintarBoton() {
     var b = document.createElement('button');
-    b.type = 'button'; b.className = 'pa-campana'; b.hidden = true;
+    b.type = 'button'; b.className = 'pa-campana'; b.hidden = false; // visible por defecto; solo se oculta si ya están activadas
     b.innerHTML = '<span aria-hidden="true">🔔</span> Avisarme cada entrega';
     b.addEventListener('click', function () { activarAvisos(b); });
     document.body.appendChild(b);
     var revisar = function () {
-      if (!('Notification' in window)) { b.hidden = true; return; }
-      if (esIOS && !instalada) { b.hidden = false; return; }   // iPhone sin instalar: mostrar para que sepa el paso
-      if (!reg || !reg.pushManager) { b.hidden = true; return; } // el SW aún no está listo; serviceWorker.ready reintenta
+      if (!('Notification' in window)) { b.hidden = true; return; }  // navegador sin soporte: único caso que lo oculta sin estar activado
+      if (!reg || !reg.pushManager) { b.hidden = false; return; }    // SW aún no listo: dejar el botón visible, no esconderlo
       reg.pushManager.getSubscription().then(function (s) {
         var ok = s && Notification.permission === 'granted';
-        b.hidden = !!ok;                                         // ya activadas → ocultar; si no, mostrar
+        b.hidden = !!ok;                                             // solo se oculta cuando YA están activadas
         if (ok) api('/api/push/sub', { method: 'POST', body: JSON.stringify(s.toJSON()) }).catch(function () {});
       }).catch(function () { b.hidden = false; });
     };
@@ -224,6 +228,7 @@
   setInterval(function () { if (document.visibilityState === 'visible' && Date.now() - ultimo > 5 * 60000) resync(); }, 30000);
 
   document.addEventListener('DOMContentLoaded', function () {
+    try { var vs = document.createElement('div'); vs.className = 'pa-ver'; vs.textContent = 'v5'; document.body.appendChild(vs); } catch (e) {}
     pintarBoton();
     // Muestro la ayuda de instalación en cualquier teléfono no instalado (Android que no disparó el botón, iPhone o webview).
     if (!instalada) setTimeout(function () {

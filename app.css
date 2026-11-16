@@ -28,3 +28,5 @@ body { padding-top: env(safe-area-inset-top); }
 .pa-inst-t { margin: 0; color: #ffd978; font-weight: 700; font-size: 15px; text-align: center; }
 .pa-inst-g { margin: 0; color: #f3ead6; font-size: 15px; line-height: 1.4; text-align: center; }
 .pa-inst-ico { display: inline-block; border: 1.5px solid #8ab4ff; border-radius: 5px; padding: 0 5px; color: #8ab4ff; font-weight: 700; }
+
+.pa-ver { position: fixed; top: calc(6px + env(safe-area-inset-top)); left: 8px; z-index: 9999; font: 600 11px Geist Mono, monospace; color: rgba(255,217,120,.55); pointer-events: none; }
