@@ -194,16 +194,18 @@
     b.addEventListener('click', function () { activarAvisos(b); });
     document.body.appendChild(b);
     var revisar = function () {
-      var velo = document.getElementById('velo');
-      if (velo && velo.classList.contains('on')) { setTimeout(revisar, 1500); return; } // no tapar la apertura
-      if (!reg || !reg.pushManager) { b.hidden = !(esIOS && !instalada); return; }
+      if (!('Notification' in window)) { b.hidden = true; return; }
+      if (esIOS && !instalada) { b.hidden = false; return; }   // iPhone sin instalar: mostrar para que sepa el paso
+      if (!reg || !reg.pushManager) { b.hidden = true; return; } // el SW aún no está listo; serviceWorker.ready reintenta
       reg.pushManager.getSubscription().then(function (s) {
         var ok = s && Notification.permission === 'granted';
-        b.hidden = !!ok;
+        b.hidden = !!ok;                                         // ya activadas → ocultar; si no, mostrar
         if (ok) api('/api/push/sub', { method: 'POST', body: JSON.stringify(s.toJSON()) }).catch(function () {});
-      });
+      }).catch(function () { b.hidden = false; });
     };
-    setTimeout(revisar, 2500);
+    // Espera a que el SW esté activo (clave en la app recién instalada) y reintenta por si tarda.
+    if (navigator.serviceWorker) navigator.serviceWorker.ready.then(function (r) { reg = r; revisar(); }).catch(function () {});
+    [1500, 3500, 6000].forEach(function (ms) { setTimeout(revisar, ms); });
   }
 
   if ('serviceWorker' in navigator) {
