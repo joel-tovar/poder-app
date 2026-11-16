@@ -129,6 +129,27 @@
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var reg = null;
 
+  /* ---------- instalar en 1 toque (Android/Chrome) o guía (iPhone) ---------- */
+  var promptInstalar = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); promptInstalar = e; pintarInstalar(); });
+  window.addEventListener('appinstalled', function () { promptInstalar = null; var x = document.getElementById('pa-inst'); if (x) x.remove(); });
+  function pintarInstalar() {
+    if (instalada) return;
+    if (document.getElementById('pa-inst')) { document.getElementById('pa-inst').hidden = false; return; }
+    var w = document.createElement('div'); w.id = 'pa-inst'; w.className = 'pa-inst';
+    if (promptInstalar) {
+      w.innerHTML = '<button type="button" class="pa-inst-b"><span aria-hidden="true">📲</span> Instalar PODER</button><button type="button" class="pa-inst-x" aria-label="Ahora no">Ahora no</button>';
+      w.querySelector('.pa-inst-b').addEventListener('click', function () {
+        promptInstalar.prompt();
+        promptInstalar.userChoice.then(function () { promptInstalar = null; w.remove(); });
+      });
+    } else if (esIOS) {
+      w.innerHTML = '<p class="pa-inst-t">Para tenerla como app:</p><p class="pa-inst-g">Toca <b>Compartir</b> <span class="pa-inst-ico">&#x2191;</span> abajo y luego <b>«Agregar a inicio»</b>.</p><button type="button" class="pa-inst-x" aria-label="Entendido">Entendido</button>';
+    } else { return; }
+    w.querySelector('.pa-inst-x').addEventListener('click', function () { w.remove(); });
+    (document.body || document.documentElement).appendChild(w);
+  }
+
   function b64aBytes(s) {
     s = s.replace(/-/g, '+').replace(/_/g, '/'); s += '='.repeat((4 - s.length % 4) % 4);
     var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u;
@@ -189,5 +210,13 @@
   });
   setInterval(function () { if (document.visibilityState === 'visible' && Date.now() - ultimo > 5 * 60000) resync(); }, 30000);
 
-  document.addEventListener('DOMContentLoaded', pintarBoton);
+  document.addEventListener('DOMContentLoaded', function () {
+    pintarBoton();
+    // iPhone no dispara beforeinstallprompt: si no está instalada, muestro la guía sola tras la apertura.
+    if (!instalada && esIOS) setTimeout(function () {
+      var velo = document.getElementById('velo');
+      if (velo && velo.classList.contains('on')) { var t = setInterval(function () { if (!velo.classList.contains('on')) { clearInterval(t); pintarInstalar(); } }, 1000); }
+      else pintarInstalar();
+    }, 1500);
+  });
 })();

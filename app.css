@@ -14,3 +14,17 @@ body { padding-top: env(safe-area-inset-top); }
 .pa-clave button { font: 700 16px Geist, system-ui; padding: 14px; border-radius: 12px; border: 0; background: #ffd978; color: #120d02; }
 .pa-e { color: #ff8a7a; min-height: 1.2em; margin: 0; font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .pa-campana { transition: none; } }
+
+/* Instalar: banner de 1 toque (Android) o guía (iPhone) */
+.pa-inst { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 9500;
+  width: min(360px, calc(100vw - 24px)); display: flex; flex-direction: column; gap: 8px; align-items: center;
+  background: rgba(13,14,20,.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid #5a4a22; border-radius: 16px; padding: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.5); font-family: Geist, system-ui, sans-serif; }
+.pa-inst[hidden] { display: none; }
+.pa-inst-b { width: 100%; font: 800 17px Geist, system-ui; color: #120d02; background: linear-gradient(180deg, #ffd978, #e7a93a);
+  border: 0; padding: 15px; border-radius: 12px; cursor: pointer; }
+.pa-inst-b:active { transform: scale(.98); }
+.pa-inst-x { background: none; border: 0; color: #9aa0ad; font: 600 13px Geist, system-ui; padding: 4px 8px; cursor: pointer; }
+.pa-inst-t { margin: 0; color: #ffd978; font-weight: 700; font-size: 15px; text-align: center; }
+.pa-inst-g { margin: 0; color: #f3ead6; font-size: 15px; line-height: 1.4; text-align: center; }
+.pa-inst-ico { display: inline-block; border: 1.5px solid #8ab4ff; border-radius: 5px; padding: 0 5px; color: #8ab4ff; font-weight: 700; }
