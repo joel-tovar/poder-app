@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05060B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PODER">
+<meta name="description" content="Hábitos de TickTick y entregas de Dropi que suben tu poder.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icono-192.png">
+<link rel="apple-touch-icon" href="img/icono-180.png">
+<link rel="preconnect" href="https://poder-app.chatea-cron.workers.dev">
+<link rel="preload" href="img/personaje.webp" as="image">
+<title>PODER</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/tablero.css" charset="utf-8">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<main id="app" class="app" data-ap="1">
+  <canvas id="escena" class="escena" aria-label="Personaje de poder con alas"></canvas>
+  <div class="sombra" aria-hidden="true"></div>
+
+  <div class="ui">
+    <div class="escenario">
+      <header class="cab panel rv" id="cabecera" data-rv="rango">
+        <p class="marca">PODER</p>
+        <h1 class="rango" id="rango">Leyendo</h1>
+        <div class="poder-caja">
+          <span class="poder" id="poder">0</span>
+          <span class="poder-u">de poder</span>
+        </div>
+        <div class="barra" id="barra" role="progressbar" aria-label="Avance al siguiente rango" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="barra-i"></i></div>
+        <p class="faltan" id="faltan">leyendo TickTick…</p>
+      </header>
+
+      <section class="frase panel rv" id="frase" data-rv="frase" aria-live="polite">
+        <p class="frase-t" id="frase-t">Preparando tu día…</p>
+        <p class="frase-a" id="frase-a"></p>
+      </section>
+    </div>
+
+    <section class="habitos rv" id="habitos" data-rv="habitos" aria-label="Hábitos de hoy">
+      <article class="hab cargando" data-key="leer">
+        <span class="hab-cinta" aria-hidden="true"></span>
+        <div class="hab-txt"><h2 class="hab-n">Leer</h2><p class="hab-m">leyendo TickTick…</p></div>
+        <div class="hab-der"><span class="hab-v">+10</span><button class="btn btn-hecho" type="button" disabled>Hecho</button><span class="hab-ok" hidden>✓ hoy</span></div>
+      </article>
+      <article class="hab cargando" data-key="escribir">
+        <span class="hab-cinta" aria-hidden="true"></span>
+        <div class="hab-txt"><h2 class="hab-n">Escribir</h2><p class="hab-m">leyendo TickTick…</p></div>
+        <div class="hab-der"><span class="hab-v">+10</span><button class="btn btn-hecho" type="button" disabled>Hecho</button><span class="hab-ok" hidden>✓ hoy</span></div>
+      </article>
+      <article class="hab cargando" data-key="meditar">
+        <span class="hab-cinta" aria-hidden="true"></span>
+        <div class="hab-txt"><h2 class="hab-n">Meditar</h2><p class="hab-m">leyendo TickTick…</p></div>
+        <div class="hab-der"><span class="hab-v">+10</span><button class="btn btn-hecho" type="button" disabled>Hecho</button><span class="hab-ok" hidden>✓ hoy</span></div>
+      </article>
+      <article class="hab cargando" data-key="ayuno">
+        <span class="hab-cinta" aria-hidden="true"></span>
+        <div class="hab-txt"><h2 class="hab-n">Ayuno de Dopamina</h2><p class="hab-m">leyendo TickTick…</p></div>
+        <div class="hab-der"><span class="hab-v">+10</span><button class="btn btn-hecho" type="button" disabled>Hecho</button><span class="hab-ok" hidden>✓ hoy</span></div>
+      </article>
+      <article class="hab cargando" data-key="dormir">
+        <span class="hab-cinta" aria-hidden="true"></span>
+        <div class="hab-txt"><h2 class="hab-n">Dormir Bien</h2><p class="hab-m">leyendo TickTick…</p></div>
+        <div class="hab-der"><span class="hab-v">+10</span><button class="btn btn-hecho" type="button" disabled>Hecho</button><span class="hab-ok" hidden>✓ hoy</span></div>
+      </article>
+    </section>
+
+    <aside class="entregas panel rv" id="entregas" data-rv="resto" aria-label="Entregas de Dropi">
+      <div class="ent-cab">
+        <p class="rotulo">Entregas · esta semana</p>
+        <button class="btn btn-suave" id="btn-dropi" type="button">Actualizar Dropi</button>
+      </div>
+      <div class="ent-cifras">
+        <span class="ent-n" id="ent-n">–</span>
+        <span class="ent-u" id="ent-u">pedidos</span>
+        <span class="ent-plata" id="ent-plata"></span>
+      </div>
+      <p class="ent-pasada" id="ent-pasada">semana pasada: leyendo…</p>
+      <p class="ent-meta" id="ent-meta"></p>
+      <ul class="ent-lista" id="ent-lista" aria-label="Últimas entregas"></ul>
+      <p class="ent-estado" id="ent-estado">Dropi · sin lectura todavía</p>
+    </aside>
+
+    <section class="calendario panel rv" id="calendario" data-rv="resto" aria-label="Últimos 28 días">
+      <div class="cal-cab">
+        <p class="rotulo">Últimos 28 días</p>
+        <p class="cal-datos" id="cal-datos">racha global — · perfectos —</p>
+      </div>
+      <div class="cal-dias" id="cal-dias"></div>
+      <div class="cal-barras" id="cal-barras"></div>
+      <p class="cal-pie"><span>hace 28 días</span><span>poder ganado por día</span><span>hoy</span></p>
+    </section>
+
+    <footer class="pie rv" id="pie" data-rv="resto">
+      <span id="pie-tt">TickTick · leyendo</span>
+      <span id="pie-dr">Dropi · sin lectura</span>
+      <button class="enlace" id="btn-tt" type="button">Releer TickTick</button>
+      <button class="enlace" id="btn-dropi-2" type="button">Actualizar Dropi</button>
+      <button class="enlace" id="btn-apertura" type="button">ver la apertura</button>
+    </footer>
+  </div>
+
+  <div class="golpe" id="golpe" data-k="perfecto" aria-hidden="true">
+    <p class="golpe-hab" id="golpe-hab"></p>
+    <p class="golpe-t" id="golpe-t"></p>
+    <p class="golpe-a" id="golpe-a"></p>
+    <p class="golpe-x" id="golpe-x"></p>
+    <i class="golpe-tiempo" aria-hidden="true"></i>
+  </div>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+  <div class="velo on" id="velo" role="dialog" aria-label="Apertura de PODER">
+    <div class="velo-centro">
+      <p class="velo-titulo">PODER</p>
+      <p class="velo-sub">Cámara del Reactor</p>
+    </div>
+    <div class="velo-tel" aria-hidden="true">
+      <div id="tel-hora">BOGOTÁ · --:--:--</div>
+      <div id="tel-tt">TICKTICK · leyendo</div>
+      <div id="tel-dr">DROPI · caché</div>
+      <div id="tel-hitos"></div>
+    </div>
+    <button class="btn btn-saltar" id="btn-saltar" type="button">Saltar <kbd>Esc</kbd></button>
+  </div>
+</main>
+
+<script src="puente.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script charset="utf-8" src="src/escena.js"></script>
+<script charset="utf-8" src="src/escena-doble.js"></script>
+<script charset="utf-8" src="src/tablero.js"></script>
+
+</body>
+</html>

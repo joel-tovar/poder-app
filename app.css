@@ -1,0 +1,16 @@
+/* Piezas propias de la app del celular (lo demás es el tablero de siempre) */
+html, body { background: #05060B; overscroll-behavior: none; }
+body { padding-top: env(safe-area-inset-top); }
+.pa-campana { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 9000;
+  font: 600 14px/1 Geist, system-ui, sans-serif; color: #120d02; background: linear-gradient(180deg, #ffd978, #e7a93a); border: 0;
+  padding: 13px 18px; border-radius: 999px; box-shadow: 0 8px 30px rgba(231,169,58,.35); cursor: pointer; white-space: nowrap; }
+.pa-campana[hidden] { display: none; }
+.pa-campana:active { transform: translateX(-50%) scale(.97); }
+.pa-clave { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 30%, #2a1f08, #05060B 70%); }
+.pa-clave form { width: min(360px, 100%); display: grid; gap: 12px; text-align: center; color: #f3ead6; font-family: Geist, system-ui, sans-serif; }
+.pa-t { font-weight: 800; letter-spacing: .3em; font-size: 28px; margin: 0; color: #ffd978; }
+.pa-s { margin: 0; opacity: .8; font-size: 15px; }
+.pa-clave input { font: 500 16px Geist Mono, monospace; padding: 14px; border-radius: 12px; border: 1px solid #5a4a22; background: #0d0e14; color: #fff; }
+.pa-clave button { font: 700 16px Geist, system-ui; padding: 14px; border-radius: 12px; border: 0; background: #ffd978; color: #120d02; }
+.pa-e { color: #ff8a7a; min-height: 1.2em; margin: 0; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .pa-campana { transition: none; } }
