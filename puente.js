@@ -129,23 +129,34 @@
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var reg = null;
 
-  /* ---------- instalar en 1 toque (Android/Chrome) o guía (iPhone) ---------- */
+  /* ---------- instalar: 1 toque (Android/Chrome) o guía según el caso ---------- */
   var promptInstalar = null;
+  var UA = navigator.userAgent || '';
+  var enWebview = /(FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|WeChat|MicroMessenger|Snapchat|Twitter|TikTok|GSA\/)/i.test(UA) || /;\s*wv[;)]/.test(UA);
+  var esAndroid = /Android/i.test(UA);
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); promptInstalar = e; pintarInstalar(); });
   window.addEventListener('appinstalled', function () { promptInstalar = null; var x = document.getElementById('pa-inst'); if (x) x.remove(); });
   function pintarInstalar() {
     if (instalada) return;
-    if (document.getElementById('pa-inst')) { document.getElementById('pa-inst').hidden = false; return; }
+    var ex = document.getElementById('pa-inst'); if (ex) { ex.hidden = false; return; }
     var w = document.createElement('div'); w.id = 'pa-inst'; w.className = 'pa-inst';
+    var cerrar = '<button type="button" class="pa-inst-x" aria-label="Cerrar">Entendido</button>';
     if (promptInstalar) {
       w.innerHTML = '<button type="button" class="pa-inst-b"><span aria-hidden="true">📲</span> Instalar PODER</button><button type="button" class="pa-inst-x" aria-label="Ahora no">Ahora no</button>';
       w.querySelector('.pa-inst-b').addEventListener('click', function () {
         promptInstalar.prompt();
         promptInstalar.userChoice.then(function () { promptInstalar = null; w.remove(); });
       });
+    } else if (enWebview) {
+      // Abierta dentro de WhatsApp/Instagram/etc.: ahí no se puede instalar. Hay que abrirla en el navegador.
+      w.innerHTML = '<p class="pa-inst-t">Ábrela en tu navegador</p><p class="pa-inst-g">Estás viendo PODER dentro de otra app. Toca los <b>tres puntos ⋮</b> de arriba y elige <b>«Abrir en ' + (esIOS ? 'Safari' : 'Chrome') + '»</b>. Desde ahí la instalas.</p>' + cerrar;
     } else if (esIOS) {
-      w.innerHTML = '<p class="pa-inst-t">Para tenerla como app:</p><p class="pa-inst-g">Toca <b>Compartir</b> <span class="pa-inst-ico">&#x2191;</span> abajo y luego <b>«Agregar a inicio»</b>.</p><button type="button" class="pa-inst-x" aria-label="Entendido">Entendido</button>';
-    } else { return; }
+      w.innerHTML = '<p class="pa-inst-t">Instálala como app</p><p class="pa-inst-g">Toca <b>Compartir</b> <span class="pa-inst-ico">&#x2191;</span> (abajo en el centro) y luego <b>«Agregar a inicio»</b>.</p>' + cerrar;
+    } else if (esAndroid) {
+      w.innerHTML = '<p class="pa-inst-t">Instálala como app</p><p class="pa-inst-g">Toca los <b>tres puntos ⋮</b> (arriba a la derecha) y elige <b>«Instalar aplicación»</b> o <b>«Agregar a pantalla principal»</b>.</p>' + cerrar;
+    } else {
+      w.innerHTML = '<p class="pa-inst-t">Instálala como app</p><p class="pa-inst-g">En el menú del navegador busca <b>«Instalar aplicación»</b> o <b>«Agregar a pantalla principal»</b>.</p>' + cerrar;
+    }
     w.querySelector('.pa-inst-x').addEventListener('click', function () { w.remove(); });
     (document.body || document.documentElement).appendChild(w);
   }
@@ -212,11 +223,14 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     pintarBoton();
-    // iPhone no dispara beforeinstallprompt: si no está instalada, muestro la guía sola tras la apertura.
-    if (!instalada && esIOS) setTimeout(function () {
+    // Muestro la ayuda de instalación en cualquier teléfono no instalado (Android que no disparó el botón, iPhone o webview).
+    if (!instalada) setTimeout(function () {
+      if (document.getElementById('pa-inst') || promptInstalar) return; // ya hay botón nativo
       var velo = document.getElementById('velo');
-      if (velo && velo.classList.contains('on')) { var t = setInterval(function () { if (!velo.classList.contains('on')) { clearInterval(t); pintarInstalar(); } }, 1000); }
-      else pintarInstalar();
-    }, 1500);
+      if (velo && velo.classList.contains('on')) {
+        var t = setInterval(function () { if (!velo.classList.contains('on')) { clearInterval(t); if (!promptInstalar) pintarInstalar(); } }, 1000);
+        setTimeout(function () { clearInterval(t); if (!document.getElementById('pa-inst') && !promptInstalar) pintarInstalar(); }, 9000);
+      } else pintarInstalar();
+    }, 1800);
   });
 })();
